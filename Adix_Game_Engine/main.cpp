@@ -70,12 +70,12 @@ int main()
 	//Shader SHADER("res/Shaders/shader.vs", "res/Shaders/shader.fs");
 	Shader lightingShader("res/Shaders/LightShaders/shader_c.vs", "res/Shaders/LightShaders/shader_c.fs");
 	//Shader lightCubeShader("res/Shaders/LightShaders/shader_ls.vs", "res/Shaders/LightShaders/shader_ls.fs");
-	//Shader modelShader("res/Shaders/ModelShaders/shader_m.vs", "res/Shaders/ModelShaders/shader_m.fs");
+	Shader modelShader("res/Shaders/ModelShaders/shader_m.vs", "res/Shaders/ModelShaders/shader_m.fs");
 	
-	MVP MVPLight(lightingShader);
-	//MVP MVPLightCube(lightCubeShader);
+	//MVP MVPLight(lightingShader);
+	MVP MVPLight(modelShader);
 
-	//Model ourModel("res/Models/backpack/backpack.obj");
+	Model ourModel("res/Models/Gun/ak47.obj");
 
 	//set callback function for change in size of window.
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -199,6 +199,8 @@ int main()
 	int nbFrames = 0;
 	double msPerF = 0;
 	double fpsSixty = 16.666667;
+	float weaponYaw = 0.0f;
+	float weaponPitch = 0.0f;
 	//main loop :
 	while (!glfwWindowShouldClose(window))
 	{
@@ -248,38 +250,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lightingShader.use();
-/*
-		lightingShader.setFloat("material.shininess", 32.0f);
-		lightingShader.setVec("viewPos", camera.Position);
-
-		Lights(lightingShader, pointLightPositions, PointLightColors);
-
-		diffuseMap.Bind(GL_TEXTURE0);
-		specularMap.Bind(GL_TEXTURE1);
-
-*/
 		floor.Bind(GL_TEXTURE0);
-
 		MVPLight.Projection(camera.Zoom, 800.0f / 600.0f, 0.1f, 100.0f);
 		MVPLight.View(camera.GetViewMatrix());
-
-/*
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		int modelLoc = glGetUniformLocation(modelShader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		ourModel.Draw(modelShader);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(5.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		modelLoc = glGetUniformLocation(modelShader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		ourModel.Draw(modelShader);
-*/
 
 		cubeVAO.Bind();
 		float angle = 0.0f;
@@ -355,6 +328,39 @@ int main()
 			floorOffsetX += 1.0f;
 		}
 
+		modelShader.use();
+		modelShader.setFloat("material.shininess", 32.0f);
+		modelShader.setInt("isLight", 0);
+		//modelShader.setInt("isLight", 1);
+		//Lights(modelShader, pointLightPositions, PointLightColors);
+		modelShader.setVec("viewPos", camera.Position);
+
+		MVPLight.Projection(camera.Zoom, 800.0f / 600.0f, 0.1f, 100.0f);
+		MVPLight.View(camera.GetViewMatrix());
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model,
+			glm::vec3(
+				camera.Position.x,
+				-0.08f,//camera.Position.y - 0.09f,
+				camera.Position.z
+			));
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(70.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+
+		weaponYaw = camera.Yaw;
+		weaponPitch = camera.Pitch;
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(100.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		std::cout << "yaw : " << weaponYaw << std::endl;
+		model = glm::rotate(model, weaponYaw / 57.556f, glm::vec3(0.0f, 0.0f, -1.0f));
+		model = glm::rotate(model, weaponPitch / 60.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		int modelLoc = glGetUniformLocation(modelShader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		ourModel.Draw(modelShader);
 
 /*
 		lightCubeShader.use();

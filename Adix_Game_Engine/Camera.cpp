@@ -68,6 +68,14 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, GLboolean constr
 			Pitch = -89.0f;
 		}
 	}
+	if (Yaw > 360.0f)
+	{
+		Yaw = 0.0f;
+	}
+	if (Yaw < 0.0f)
+	{
+		Yaw = 360.0f;
+	}
 	Position.y = 0.0f;
 
 	updateCameraVectors();

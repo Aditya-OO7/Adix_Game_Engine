@@ -6,9 +6,16 @@ struct Material
 	//sampler2D specular;
 
 	sampler2D texture_diffuse1;
+	sampler2D texture_diffuse2;
+
 	sampler2D texture_specular1;
+	sampler2D texture_specular2;
+	
 	sampler2D texture_normal1;
+	sampler2D texture_normal2;
+	
 	sampler2D texture_height1;
+	sampler2D texture_height2;
 
 	float shininess;
 };
@@ -58,10 +65,7 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform vec3 viewPos;
 
-//uniform Light light;
-//uniform vec3 objectColor;
-//uniform vec3 lightColor;
-//uniform vec3 lightPos;
+uniform int isLight;
 
 in vec3 FragPos;
 in vec3 Normal;
@@ -92,7 +96,12 @@ void main()
 	//we have to do it on ourself;
 	//result += calcSpotLight(spotLight, norm, FragPos, viewDir, diffuseTex, specularTex);
 
-	FragColor = vec4(result, 1.0);
+	if(isLight == 0){
+		FragColor = vec4(vec3(texture(material.texture_diffuse1, TexCoords)), 1.0);
+	}
+	else {
+		FragColor = vec4(result, 1.0);
+	}
 }
 
 vec3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 aTex, vec3 dTex, vec3 sTex)
